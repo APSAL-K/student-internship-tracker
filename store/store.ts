@@ -9,9 +9,16 @@ import applicationsReducer from './slices/applicationsSlice';
 import documentsReducer from './slices/documentsSlice';
 import activityReducer from './slices/activitySlice';
 
+// Create a noop storage for server-side rendering
+const noopStorage = {
+  getItem: () => Promise.resolve(null),
+  setItem: () => Promise.resolve(),
+  removeItem: () => Promise.resolve(),
+};
+
 const persistConfig = {
   key: 'root',
-  storage,
+  storage: typeof window !== 'undefined' ? storage : noopStorage,
   whitelist: ['auth', 'applications', 'documents', 'activity'],
 };
 
@@ -37,3 +44,4 @@ export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
