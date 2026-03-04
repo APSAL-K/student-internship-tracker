@@ -6,10 +6,13 @@ import { AuthState, User } from '@/lib/types';
 const initialState: AuthState = {
   isLoggedIn: false,
   user: null,
+  token: undefined,
+  isLoading: false,
+  error: null,
 };
 
-// Mock users for demo
-const mockUsers = {
+// Mock users for demo - signup creates new users
+const mockUsers: Record<string, User> = {
   'student@test.com': {
     id: 'student-1',
     name: 'Alex Johnson',
@@ -47,17 +50,55 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action: PayloadAction<{ email: string; password: string }>) => {
+      state.isLoading = true;
+      state.error = null;
+      
       const user = mockUsers[action.payload.email as keyof typeof mockUsers];
       if (user) {
         state.isLoggedIn = true;
         state.user = user;
-        state.token = `token-${user.id}`;
+        state.token = `token-${user.id}-${Date.now()}`;
+        state.isLoading = false;
+      } else {
+        state.error = 'Invalid email or password';
+        state.isLoading = false;
       }
+    },
+    signup: (state, action: PayloadAction<{ email: string; password: string; name: string }>) => {
+      state.isLoading = true;
+      state.error = null;
+
+      // Check if user already exists
+      if (mockUsers[action.payload.email]) {
+        state.error = 'Email already registered';
+        state.isLoading = false;
+        return;
+      }
+
+      // Create new user
+      const newUser: User = {
+        id: `user-${Date.now()}`,
+        name: action.payload.name,
+        email: action.payload.email,
+        role: 'student',
+        profileImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${action.payload.name}`,
+        phone: '',
+        department: '',
+        joinDate: new Date().toISOString().split('T')[0],
+      };
+
+      mockUsers[action.payload.email] = newUser;
+      state.isLoggedIn = true;
+      state.user = newUser;
+      state.token = `token-${newUser.id}-${Date.now()}`;
+      state.isLoading = false;
     },
     logout: (state) => {
       state.isLoggedIn = false;
       state.user = null;
       state.token = undefined;
+      state.error = null;
+      state.isLoading = false;
     },
     updateProfile: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
@@ -68,8 +109,15 @@ const authSlice = createSlice({
       state.user = action.payload;
       state.isLoggedIn = true;
     },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
 });
 
-export const { login, logout, updateProfile, setUser } = authSlice.actions;
+export const { login, signup, logout, updateProfile, setUser, setError, clearError } = authSlice.actions;
 export default authSlice.reducer;
+

@@ -1,117 +1,185 @@
 'use client';
 
 import { useState } from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { login } from '@/store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { login, clearError } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import Link from 'next/link';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { isLoading, error } = useAppSelector((state) => state.auth);
 
   const demoAccounts = [
-    { email: 'student@test.com', label: 'Student Account' },
-    { email: 'coordinator@test.com', label: 'Coordinator Account' },
-    { email: 'admin@test.com', label: 'Admin Account' },
+    { email: 'student@test.com', label: 'Student', description: 'Browse & apply to internships' },
+    { email: 'coordinator@test.com', label: 'Coordinator', description: 'Review applications' },
+    { email: 'admin@test.com', label: 'Admin', description: 'Full system access' },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
     if (!email || !password) {
-      setError('Please enter email and password');
       return;
     }
 
-    try {
-      dispatch(login({ email, password }));
+    dispatch(login({ email, password }));
+    setTimeout(() => {
       router.push('/dashboard');
-    } catch (err) {
-      setError('Invalid credentials');
-    }
+    }, 300);
   };
 
   const handleDemoLogin = (demoEmail: string) => {
     dispatch(login({ email: demoEmail, password: 'demo' }));
-    router.push('/dashboard');
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 300);
   };
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (error) dispatch(clearError());
+  };
+
+  const isFormValid = email && password;
+
   return (
-    <div className="w-full max-w-md space-y-8">
-      <div className="text-center space-y-2">
-        <div className="flex justify-center mb-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">IT</span>
-          </div>
+    <div className="w-full max-w-md mx-auto">
+      {/* Header */}
+      <div className="text-center space-y-3 mb-8">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20 mb-4">
+          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">IT</span>
         </div>
-        <h1 className="text-3xl font-bold text-foreground">Internship Tracker</h1>
-        <p className="text-foreground/60">Sign in to your account</p>
+        <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
+        <p className="text-muted-foreground text-sm">Sign in to continue to Internship Tracker</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Login Form */}
+      <form onSubmit={handleSubmit} className="space-y-5 mb-6">
+        {/* Error Alert */}
         {error && (
-          <div className="bg-destructive/10 border border-destructive rounded-lg p-4 flex items-gap-3">
-            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-destructive">{error}</p>
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30 animate-in fade-in slide-in-from-top-2">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-500">{error}</p>
           </div>
         )}
 
+        {/* Email Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-foreground">Email</label>
-          <Input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-card/50 border-border rounded-lg"
-          />
+          <Label htmlFor="email" className="text-sm font-medium">
+            Email Address
+          </Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={handleEmailChange}
+              disabled={isLoading}
+              className="pl-10 bg-card/50 border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+            />
+          </div>
         </div>
 
+        {/* Password Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-foreground">Password</label>
-          <Input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="bg-card/50 border-border rounded-lg"
-          />
+          <Label htmlFor="password" className="text-sm font-medium">
+            Password
+          </Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              className="pl-10 pr-10 bg-card/50 border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
+        {/* Forgot Password Link */}
+        <div className="flex justify-end">
+          <Link href="#" className="text-xs text-primary hover:underline font-medium">
+            Forgot password?
+          </Link>
+        </div>
+
+        {/* Sign In Button */}
         <Button
           type="submit"
-          className="w-full h-11 bg-gradient-to-r from-primary to-accent text-foreground font-semibold rounded-lg hover:shadow-lg transition-all"
+          disabled={!isFormValid || isLoading}
+          className="w-full h-11 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
         >
-          Sign In
+          {isLoading ? 'Signing in...' : 'Sign In'}
         </Button>
+
+        {/* Sign Up Link */}
+        <p className="text-center text-sm text-muted-foreground">
+          Don't have an account?{' '}
+          <Link href="/signup" className="text-primary hover:underline font-medium">
+            Create one
+          </Link>
+        </p>
       </form>
 
-      <div className="space-y-3">
-        <p className="text-xs text-foreground/60 text-center font-medium">Demo Accounts</p>
-        <div className="space-y-2">
-          {demoAccounts.map((account) => (
-            <button
-              key={account.email}
-              onClick={() => handleDemoLogin(account.email)}
-              className="w-full px-4 py-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 text-foreground transition text-sm font-medium"
-            >
-              {account.label}
-              <span className="block text-xs text-foreground/60 mt-0.5">{account.email}</span>
-            </button>
-          ))}
+      {/* Divider */}
+      <div className="relative mb-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border/50"></div>
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="px-2 bg-background text-muted-foreground">Demo Accounts</span>
         </div>
       </div>
 
-      <p className="text-xs text-foreground/50 text-center">
-        This is a demo application. Use any demo account above to explore features.
+      {/* Demo Accounts */}
+      <div className="grid gap-2">
+        {demoAccounts.map((account) => (
+          <button
+            key={account.email}
+            type="button"
+            onClick={() => handleDemoLogin(account.email)}
+            disabled={isLoading}
+            className="relative group p-3.5 rounded-lg border border-border/50 bg-card/30 hover:bg-card/60 hover:border-primary/50 text-left transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-foreground">{account.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{account.email}</p>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">{account.description}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <p className="text-xs text-muted-foreground text-center mt-6">
+        This is a demo application. Use any account above to explore.
       </p>
     </div>
   );
 }
+
