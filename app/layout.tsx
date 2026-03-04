@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ReduxThemeProvider } from '@/store/provider'
 import { LayoutWrapper } from '@/components/LayoutWrapper'
+import { ThemeScript } from '@/components/ThemeScript'
 import './globals.css'
 
 // Cache bust: v2
@@ -50,6 +51,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className="font-sans antialiased">
         <ReduxThemeProvider>
           <LayoutWrapper>
@@ -61,5 +65,6 @@ export default function RootLayout({
     </html>
   )
 }
+
 
 

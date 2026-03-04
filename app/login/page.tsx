@@ -1,22 +1,26 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { useAuthPersist } from '@/store/useAuthPersist';
 import { LoginForm } from '@/components/auth/LoginForm';
-import { Metadata } from 'next';
 
 export default function LoginPage() {
   const router = useRouter();
   const { isLoggedIn } = useAppSelector((state) => state.auth);
+  const [mounted, setMounted] = useState(false);
   useAuthPersist();
 
   useEffect(() => {
-    if (isLoggedIn) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && isLoggedIn) {
       router.replace('/dashboard');
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, mounted, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
@@ -36,4 +40,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
 
