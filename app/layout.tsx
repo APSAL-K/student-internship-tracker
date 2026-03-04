@@ -5,6 +5,7 @@ import { ReduxThemeProvider } from '@/store/provider'
 import { LayoutWrapper } from '@/components/LayoutWrapper'
 import './globals.css'
 
+// Cache bust: v2
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
