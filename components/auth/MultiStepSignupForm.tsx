@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { signup, clearError } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, CheckCircle, Upload, X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import Link from 'next/link';
 
 interface FormData {
@@ -42,6 +43,7 @@ const STEPS = [
 
 export function MultiStepSignupForm() {
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -67,7 +69,25 @@ export function MultiStepSignupForm() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isLoading, error } = useAppSelector((state) => state.auth);
+  const { isLoading, error, isLoggedIn } = useAppSelector((state) => state.auth);
+
+  // Handle successful signup
+  useEffect(() => {
+    if (isLoggedIn && !isLoading && isSubmitting) {
+      toast.success('Account created successfully!');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
+    }
+  }, [isLoggedIn, isLoading, isSubmitting, router]);
+
+  // Handle signup errors
+  useEffect(() => {
+    if (error && isSubmitting) {
+      toast.error(error);
+      setIsSubmitting(false);
+    }
+  }, [error, isSubmitting]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -79,11 +99,13 @@ export function MultiStepSignupForm() {
     if (formData.skills.trim() && !skillsList.includes(formData.skills.trim())) {
       setSkillsList([...skillsList, formData.skills.trim()]);
       setFormData((prev) => ({ ...prev, skills: '' }));
+      toast.success('Skill added');
     }
   };
 
   const removeSkill = (skill: string) => {
     setSkillsList(skillsList.filter((s) => s !== skill));
+    toast.success('Skill removed');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,23 +113,38 @@ export function MultiStepSignupForm() {
     if (file) {
       if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
         setResumeFile(file);
+        toast.success('Resume uploaded successfully');
       } else {
-        dispatch({ type: 'setError', payload: 'Only PDF files are allowed' });
+        toast.error('Only PDF files are allowed for resume');
       }
     }
   };
 
   const validateStep = (): boolean => {
     const currentFields = STEPS[step - 1].fields;
+    
     for (const field of currentFields) {
       if (field === 'resumeFile') continue;
       const value = formData[field as keyof FormData];
-      if (!value) return false;
+      if (!value || value === '') {
+        toast.error(`Please fill in all required fields for this step`);
+        return false;
+      }
     }
 
     if (step === 1) {
-      if (formData.password.length < 6) return false;
-      if (formData.password !== formData.confirmPassword) return false;
+      if (!formData.email.includes('@')) {
+        toast.error('Please enter a valid email address');
+        return false;
+      }
+      if (formData.password.length < 6) {
+        toast.error('Password must be at least 6 characters');
+        return false;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        toast.error('Passwords do not match');
+        return false;
+      }
     }
 
     return true;
@@ -116,6 +153,7 @@ export function MultiStepSignupForm() {
   const handleNext = () => {
     if (validateStep()) {
       setStep(step + 1);
+      toast.success(`Step ${step} completed`);
     }
   };
 
@@ -128,6 +166,11 @@ export function MultiStepSignupForm() {
 
     if (!validateStep()) return;
 
+    if (!resumeFile) {
+      toast.error('Please upload your resume before submitting');
+      return;
+    }
+
     const base64Resume = resumeFile 
       ? {
           name: resumeFile.name,
@@ -137,6 +180,7 @@ export function MultiStepSignupForm() {
         }
       : undefined;
 
+    setIsSubmitting(true);
     dispatch(
       signup({
         email: formData.email,
@@ -165,15 +209,18 @@ export function MultiStepSignupForm() {
         resume: base64Resume,
       })
     );
-
-    setTimeout(() => {
-      router.push('/dashboard');
-    }, 300);
   };
 
-  const getProgressPercentage = () => (step / STEPS.length) * 100;
+  async function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+    });
+  }
 
-  return (
+  const getProgressPercentage = () => (step / STEPS.length) * 100;
     <div className="w-full max-w-2xl mx-auto">
       {/* Progress Indicator */}
       <div className="mb-8">
@@ -612,13 +659,4 @@ export function MultiStepSignupForm() {
       </form>
     </div>
   );
-}
-
-async function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-  });
 }
