@@ -38,7 +38,7 @@ export function LoginForm() {
   };
 
   const handleDemoLogin = (demoEmail: string) => {
-    dispatch(login({ email: demoEmail, password: 'demo' }));
+    dispatch(login({ email: demoEmail, password: 'demo123' }));
     setTimeout(() => {
       router.push('/dashboard');
     }, 300);
