@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, LogOut, Moon, Sun, Bell, User, X } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface NavbarProps {
@@ -16,6 +17,7 @@ interface NavbarProps {
 export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
   const { user, isLoggedIn } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -99,21 +101,22 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
                 alt={user.name}
                 className="w-8 h-8 rounded-full ring-2 ring-primary/50"
               />
-              
+
               {/* Profile Dropdown */}
               {profileOpen && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
-                  <Link 
-                    href="/profile" 
+                  <Link
+                    href="/profile"
                     className="w-full px-4 py-2 text-sm text-foreground hover:bg-accent/20 flex items-center gap-2 transition"
                   >
                     <User className="w-4 h-4" />
                     My Profile
                   </Link>
-                  <button 
+                  <button
                     onClick={() => {
                       dispatch(logout());
                       setProfileOpen(false);
+                      router.push('/login');
                     }}
                     className="w-full px-4 py-2 text-sm text-destructive hover:bg-red-500/10 flex items-center gap-2 transition text-left"
                   >
@@ -129,7 +132,10 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
               variant="ghost"
               size="icon"
               className="text-destructive hover:bg-red-500/10 hover:text-red-600 rounded-lg sm:hidden"
-              onClick={() => dispatch(logout())}
+              onClick={() => {
+                dispatch(logout());
+                router.push('/login');
+              }}
               title="Logout"
             >
               <LogOut className="w-5 h-5" />

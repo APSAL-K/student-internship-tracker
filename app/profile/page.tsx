@@ -7,6 +7,7 @@ import { updateProfile } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import { Upload, Edit2, Save, X, Download } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -14,7 +15,7 @@ export default function ProfilePage() {
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState(user || {});
+  const [editData, setEditData] = useState<any>(user || {});
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   if (!user) {
@@ -51,7 +52,24 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    let updatedData = { ...editData };
+    let updatedData = JSON.parse(JSON.stringify(editData)); // Deep clone to avoid mutating state
+
+    // Validation: if experienced, ensure jobTitle, company, and duration are present
+    if (updatedData.experience?.experienceLevel === 'experienced') {
+      if (!updatedData.experience.jobTitle || !updatedData.experience.company || !updatedData.experience.duration) {
+        toast.error('Please fill in all professional experience fields or switch to Fresher');
+        return;
+      }
+    }
+
+    // Normalize skills: convert comma-separated string back to array
+    if (updatedData.experience?.skills && typeof updatedData.experience.skills === 'string') {
+      updatedData.experience.skills = updatedData.experience.skills
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter((s: string) => s !== '');
+    }
+
     if (resumeFile) {
       const base64 = await fileToBase64(resumeFile);
       updatedData.resume = {
@@ -146,24 +164,37 @@ export default function ProfilePage() {
       icon: '💼',
       fields: [
         {
-          label: 'Job Title',
-          key: 'experience.jobTitle',
-          value: user.experience?.jobTitle || '',
+          label: 'Experience Level',
+          key: 'experience.experienceLevel',
+          value: (isEditing ? getNestedValue(editData, 'experience.experienceLevel') : user.experience?.experienceLevel) || 'fresher',
+          type: 'select',
+          options: ['fresher', 'experienced'],
         },
-        {
-          label: 'Company',
-          key: 'experience.company',
-          value: user.experience?.company || '',
-        },
-        {
-          label: 'Duration',
-          key: 'experience.duration',
-          value: user.experience?.duration || '',
-        },
+        ...((isEditing ? getNestedValue(editData, 'experience.experienceLevel') : user.experience?.experienceLevel) === 'experienced'
+          ? [
+            {
+              label: 'Job Title',
+              key: 'experience.jobTitle',
+              value: (isEditing ? getNestedValue(editData, 'experience.jobTitle') : user.experience?.jobTitle) || '',
+            },
+            {
+              label: 'Company',
+              key: 'experience.company',
+              value: (isEditing ? getNestedValue(editData, 'experience.company') : user.experience?.company) || '',
+            },
+            {
+              label: 'Duration',
+              key: 'experience.duration',
+              value: (isEditing ? getNestedValue(editData, 'experience.duration') : user.experience?.duration) || '',
+            },
+          ]
+          : []),
         {
           label: 'Skills',
           key: 'experience.skills',
-          value: (user.experience?.skills || []).join(', '),
+          value: Array.isArray(isEditing ? getNestedValue(editData, 'experience.skills') : user.experience?.skills)
+            ? (isEditing ? getNestedValue(editData, 'experience.skills') : (user.experience?.skills || [])).join(', ')
+            : (isEditing ? getNestedValue(editData, 'experience.skills') : user.experience?.skills) || '',
           placeholder: 'e.g., React, Node.js, Python',
         },
       ],
@@ -241,7 +272,7 @@ export default function ProfilePage() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {section.fields.map((field) => (
+                {section.fields.map((field: any) => (
                   <div key={field.key} className="space-y-2">
                     <Label htmlFor={field.key} className="text-sm font-medium">
                       {field.label}
@@ -251,14 +282,16 @@ export default function ProfilePage() {
                         <select
                           id={field.key}
                           value={
-                            field.key.includes('.')
+                            (field.key.includes('.')
                               ? getNestedValue(editData, field.key)
-                              : editData[field.key] || ''
+                              : editData[field.key]) ?? ''
                           }
                           onChange={(e) => {
                             if (field.key.includes('.')) {
-                              const [section, fieldName] = field.key.split('.');
-                              handleNestedChange(section, fieldName, e.target.value);
+                              setEditData((prev: any) => {
+                                const newData = JSON.parse(JSON.stringify(prev));
+                                return setNestedValue(newData, field.key, e.target.value);
+                              });
                             } else {
                               handleInputChange(e);
                             }
@@ -266,7 +299,7 @@ export default function ProfilePage() {
                           disabled={field.disabled}
                           className="w-full px-3 py-2 bg-card/50 border border-border rounded-lg text-foreground"
                         >
-                          {field.options?.map((opt) => (
+                          {field.options?.map((opt: any) => (
                             <option key={opt} value={opt}>
                               {opt.charAt(0).toUpperCase() + opt.slice(1)}
                             </option>
@@ -277,14 +310,16 @@ export default function ProfilePage() {
                           id={field.key}
                           type={field.type || 'text'}
                           value={
-                            field.key.includes('.')
+                            (field.key.includes('.')
                               ? getNestedValue(editData, field.key)
-                              : editData[field.key] || ''
+                              : editData[field.key]) ?? ''
                           }
                           onChange={(e) => {
                             if (field.key.includes('.')) {
-                              const [section, fieldName] = field.key.split('.');
-                              handleNestedChange(section, fieldName, e.target.value);
+                              setEditData((prev: any) => {
+                                const newData = JSON.parse(JSON.stringify(prev));
+                                return setNestedValue(newData, field.key, e.target.value);
+                              });
                             } else {
                               handleInputChange(e);
                             }
@@ -392,7 +427,19 @@ export default function ProfilePage() {
 }
 
 function getNestedValue(obj: any, path: string): any {
+  if (!obj) return undefined;
   return path.split('.').reduce((acc, part) => acc?.[part], obj);
+}
+
+function setNestedValue(obj: any, path: string, value: any): any {
+  const parts = path.split('.');
+  const last = parts.pop()!;
+  const target = parts.reduce((acc, part) => {
+    if (!acc[part]) acc[part] = {};
+    return acc[part];
+  }, obj);
+  target[last] = value;
+  return obj;
 }
 
 function fileToBase64(file: File): Promise<string> {
@@ -410,7 +457,16 @@ function calculateProgress(user: any): number {
   if (user.personalDetails?.address) progress += 10;
   if (user.personalDetails?.dateOfBirth) progress += 10;
   if (user.education?.degree) progress += 15;
-  if (user.experience?.jobTitle) progress += 15;
+
+  const isFresher = user.experience?.experienceLevel === 'fresher';
+  if (isFresher) {
+    progress += 25;
+  } else {
+    if (user.experience?.jobTitle) progress += 10;
+    if (user.experience?.company) progress += 10;
+    if (user.experience?.duration) progress += 5;
+  }
+
   if (user.resume) progress += 10;
   return Math.min(progress, 100);
 }
