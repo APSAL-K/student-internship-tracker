@@ -19,6 +19,7 @@ export interface EducationDetails {
 }
 
 export interface ExperienceDetails {
+  experienceLevel: 'fresher' | 'experienced';
   jobTitle: string;
   company: string;
   duration: string;
@@ -141,6 +142,7 @@ export interface SignupFormData {
   institution: string;
   graduationYear: string;
   major: string;
+  experienceLevel: 'fresher' | 'experienced';
   jobTitle: string;
   company: string;
   duration: string;

@@ -26,6 +26,7 @@ interface FormData {
   institution: string;
   graduationYear: string;
   major: string;
+  experienceLevel: 'fresher' | 'experienced';
   jobTitle: string;
   company: string;
   duration: string;
@@ -59,6 +60,7 @@ export function MultiStepSignupForm() {
     institution: '',
     graduationYear: '',
     major: '',
+    experienceLevel: 'experienced',
     jobTitle: '',
     company: '',
     duration: '',
@@ -120,11 +122,52 @@ export function MultiStepSignupForm() {
     }
   };
 
+  const isStepValid = (): boolean => {
+    const currentFields = STEPS[step - 1].fields;
+    const isFresher = formData.experienceLevel === 'fresher';
+
+    for (const field of currentFields) {
+      if (field === 'resumeFile') {
+        if (!resumeFile) return false;
+        continue;
+      }
+
+      // For freshers, experience fields are optional
+      if (isFresher && ['jobTitle', 'company', 'duration'].includes(field)) {
+        continue;
+      }
+
+      const value = formData[field as keyof FormData];
+      if (!value || value === '') return false;
+    }
+
+    if (step === 1) {
+      if (!formData.email.includes('@')) return false;
+      if (formData.password.length < 6) return false;
+      if (formData.password !== formData.confirmPassword) return false;
+    }
+
+    return true;
+  };
+
   const validateStep = (): boolean => {
     const currentFields = STEPS[step - 1].fields;
-    
+    const isFresher = formData.experienceLevel === 'fresher';
+
     for (const field of currentFields) {
-      if (field === 'resumeFile') continue;
+      if (field === 'resumeFile') {
+        if (!resumeFile) {
+          toast.error('Please upload your resume before proceeding');
+          return false;
+        }
+        continue;
+      }
+
+      // For freshers, experience fields are optional
+      if (isFresher && ['jobTitle', 'company', 'duration'].includes(field)) {
+        continue;
+      }
+
       const value = formData[field as keyof FormData];
       if (!value || value === '') {
         toast.error(`Please fill in all required fields for this step`);
@@ -166,18 +209,13 @@ export function MultiStepSignupForm() {
 
     if (!validateStep()) return;
 
-    if (!resumeFile) {
-      toast.error('Please upload your resume before submitting');
-      return;
-    }
-
-    const base64Resume = resumeFile 
+    const base64Resume = resumeFile
       ? {
-          name: resumeFile.name,
-          size: resumeFile.size,
-          uploadedAt: new Date().toISOString(),
-          base64: await fileToBase64(resumeFile),
-        }
+        name: resumeFile.name,
+        size: resumeFile.size,
+        uploadedAt: new Date().toISOString(),
+        base64: await fileToBase64(resumeFile),
+      }
       : undefined;
 
     setIsSubmitting(true);
@@ -201,6 +239,7 @@ export function MultiStepSignupForm() {
           major: formData.major,
         },
         experience: {
+          experienceLevel: formData.experienceLevel,
           jobTitle: formData.jobTitle,
           company: formData.company,
           duration: formData.duration,
@@ -220,7 +259,10 @@ export function MultiStepSignupForm() {
     });
   }
 
+
   const getProgressPercentage = () => (step / STEPS.length) * 100;
+
+  return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Progress Indicator */}
       <div className="mb-8">
@@ -228,19 +270,17 @@ export function MultiStepSignupForm() {
           {STEPS.map((s) => (
             <div key={s.id} className="flex items-center flex-1">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                  s.id <= step
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${s.id <= step
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
+                  }`}
               >
                 {s.id < step ? <CheckCircle className="w-6 h-6" /> : s.id}
               </div>
               {s.id < STEPS.length && (
                 <div
-                  className={`flex-1 h-1 mx-2 rounded-full transition-all ${
-                    s.id < step ? 'bg-primary' : 'bg-muted'
-                  }`}
+                  className={`flex-1 h-1 mx-2 rounded-full transition-all ${s.id < step ? 'bg-primary' : 'bg-muted'
+                    }`}
                 ></div>
               )}
             </div>
@@ -488,46 +528,67 @@ export function MultiStepSignupForm() {
         {/* Step 4: Experience */}
         {step === 4 && (
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="jobTitle">Job Title *</Label>
-              <Input
-                id="jobTitle"
-                type="text"
-                name="jobTitle"
-                placeholder="Software Developer"
-                value={formData.jobTitle}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className="bg-card/50 border-border rounded-lg"
-              />
-            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="experienceLevel">Experience Level *</Label>
+                <select
+                  id="experienceLevel"
+                  name="experienceLevel"
+                  value={formData.experienceLevel}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  className="w-full px-3 py-2 bg-card/50 border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary outline-none"
+                >
+                  <option value="fresher">Fresher (No Experience)</option>
+                  <option value="experienced">Experienced</option>
+                </select>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="company">Company *</Label>
-              <Input
-                id="company"
-                type="text"
-                name="company"
-                placeholder="Company Name"
-                value={formData.company}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className="bg-card/50 border-border rounded-lg"
-              />
-            </div>
+              {formData.experienceLevel === 'experienced' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="jobTitle">Job Title *</Label>
+                    <Input
+                      id="jobTitle"
+                      type="text"
+                      name="jobTitle"
+                      placeholder="Software Developer"
+                      value={formData.jobTitle}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                      className="bg-card/50 border-border rounded-lg"
+                    />
+                  </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="duration">Duration *</Label>
-              <Input
-                id="duration"
-                type="text"
-                name="duration"
-                placeholder="e.g., 6 months"
-                value={formData.duration}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className="bg-card/50 border-border rounded-lg"
-              />
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Company *</Label>
+                    <Input
+                      id="company"
+                      type="text"
+                      name="company"
+                      placeholder="Company Name"
+                      value={formData.company}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                      className="bg-card/50 border-border rounded-lg"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="duration">Duration *</Label>
+                    <Input
+                      id="duration"
+                      type="text"
+                      name="duration"
+                      placeholder="e.g., 6 months"
+                      value={formData.duration}
+                      onChange={handleInputChange}
+                      disabled={isLoading}
+                      className="bg-card/50 border-border rounded-lg"
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -632,7 +693,7 @@ export function MultiStepSignupForm() {
             <Button
               type="button"
               onClick={handleNext}
-              disabled={!validateStep() || isLoading}
+              disabled={isLoading}
               className="flex-1 bg-primary hover:bg-primary/90"
             >
               Next
@@ -641,7 +702,7 @@ export function MultiStepSignupForm() {
           ) : (
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={!isStepValid() || isLoading}
               className="flex-1 bg-primary hover:bg-primary/90"
             >
               {isLoading ? 'Creating Account...' : 'Create Account'}
