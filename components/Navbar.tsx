@@ -99,13 +99,36 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
                 alt={user.name}
                 className="w-8 h-8 rounded-full ring-2 ring-primary/50"
               />
+              
+              {/* Profile Dropdown */}
+              {profileOpen && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+                  <Link 
+                    href="/profile" 
+                    className="w-full px-4 py-2 text-sm text-foreground hover:bg-accent/20 flex items-center gap-2 transition"
+                  >
+                    <User className="w-4 h-4" />
+                    My Profile
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      dispatch(logout());
+                      setProfileOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-sm text-destructive hover:bg-red-500/10 flex items-center gap-2 transition text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Logout Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="text-destructive hover:bg-red-500/10 hover:text-red-600 rounded-lg"
+              className="text-destructive hover:bg-red-500/10 hover:text-red-600 rounded-lg sm:hidden"
               onClick={() => dispatch(logout())}
               title="Logout"
             >

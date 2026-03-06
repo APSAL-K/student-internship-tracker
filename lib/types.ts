@@ -1,21 +1,58 @@
 // User and Authentication Types
 export type UserRole = 'student' | 'coordinator' | 'admin';
 
+export interface PersonalDetails {
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+}
+
+export interface EducationDetails {
+  degree: string;
+  institution: string;
+  graduationYear: string;
+  major: string;
+  gpa?: string;
+}
+
+export interface ExperienceDetails {
+  jobTitle: string;
+  company: string;
+  duration: string;
+  skills: string[];
+  description?: string;
+}
+
+export interface ResumeFile {
+  name: string;
+  size: number;
+  uploadedAt: string;
+  base64?: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
   profileImage?: string;
-  phone?: string;
-  department?: string;
   joinDate: string;
+  personalDetails?: PersonalDetails;
+  education?: EducationDetails;
+  experience?: ExperienceDetails;
+  resume?: ResumeFile;
+  profileCompletionPercentage?: number;
 }
 
 export interface AuthState {
   isLoggedIn: boolean;
   user: User | null;
   token?: string;
+  isLoading: boolean;
+  error: null | string;
 }
 
 // Internship Types
@@ -28,14 +65,14 @@ export interface Internship {
   description: string;
   location: string;
   stipend: number;
-  duration: string; // e.g., "3 months", "6 months"
+  duration: string;
   startDate: string;
   endDate: string;
   requirements: string[];
   skills: string[];
   status: InternshipStatus;
-  postedBy: string; // Admin ID
-  applicants: string[]; // User IDs
+  postedBy: string;
+  applicants: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -66,6 +103,7 @@ export interface Document {
   uploadedAt: string;
   tags: string[];
   description?: string;
+  base64?: string;
 }
 
 // Activity Types
@@ -87,3 +125,26 @@ export interface DashboardStats {
   totalStudents: number;
   approvalRate: number;
 }
+
+// Signup Form Data
+export interface SignupFormData {
+  email: string;
+  password: string;
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+  degree: string;
+  institution: string;
+  graduationYear: string;
+  major: string;
+  jobTitle: string;
+  company: string;
+  duration: string;
+  skills: string[];
+  resume?: ResumeFile;
+}
+

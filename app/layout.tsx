@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from 'sonner'
 import { ReduxThemeProvider } from '@/store/provider'
 import { LayoutWrapper } from '@/components/LayoutWrapper'
 import { ThemeScript } from '@/components/ThemeScript'
@@ -60,11 +61,13 @@ export default function RootLayout({
             {children}
           </LayoutWrapper>
         </ReduxThemeProvider>
+        <Toaster theme="dark" position="top-center" />
         <Analytics />
       </body>
     </html>
   )
 }
+
 
 
 
