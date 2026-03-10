@@ -29,7 +29,7 @@ const navItems = {
     { href: '/students', label: 'Students', icon: Users },
     { href: '/documents', label: 'Documents', icon: FileText },
     { href: '/analytics', label: 'Analytics', icon: BarChart3 },
-    { href: '/settings', label: 'Settings', icon: Settings },
+
   ],
 };
 

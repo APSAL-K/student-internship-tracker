@@ -22,10 +22,17 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   // Handles logout and redirects to login page
+
+
   const handleLogout = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Clear storage immediately to prevent race conditions during state updates
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_state');
+    }
     dispatch(logout());
-    router.push('/login');
+    setProfileOpen(false);
+    router.replace('/login');
   };
 
   if (!isLoggedIn || !user) {
@@ -136,6 +143,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
               onClick={handleLogout}
               title="Logout"
             >
+              <LogOut className="w-5 h-5" />
             </Button>
 
 
