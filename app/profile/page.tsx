@@ -202,21 +202,26 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="w-full min-h-screen bg-background p-4 sm:p-6 lg:p-10 pb-24 sm:pb-12">
       <div className="w-full max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <img
-                src={user.profileImage}
-                alt={user.name}
-                className="w-16 h-16 rounded-full border-2 border-primary"
-              />
+        <div className="mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+            <div className="flex items-center gap-5">
+              <div className="relative group">
+                <img
+                  src={user.profileImage}
+                  alt={user.name}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-primary object-cover shadow-xl transition-transform group-hover:scale-105"
+                />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-background rounded-full shadow-lg"></div>
+              </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">{user.name}</h1>
-                <p className="text-muted-foreground capitalize">
-                  {user.role} • Joined {user.joinDate}
+                <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{user.name}</h1>
+                <p className="text-sm sm:text-base text-muted-foreground font-semibold flex items-center gap-1.5 capitaize">
+                  <span className="text-primary/70">{user.role}</span>
+                  <span className="text-muted-foreground/30">•</span>
+                  <span>Joined {user.joinDate}</span>
                 </p>
               </div>
             </div>
@@ -228,31 +233,31 @@ export default function ProfilePage() {
                 }
                 setIsEditing(!isEditing);
               }}
-              className="gap-2"
+              variant={isEditing ? "outline" : "default"}
+              className={`h-12 px-6 rounded-xl font-black transition-all active:scale-95 flex items-center gap-2 ${isEditing ? "border-red-500/50 text-red-500 hover:bg-red-500/5 hover:border-red-500" : ""
+                }`}
             >
               {isEditing ? (
                 <>
-                  <X className="w-4 h-4" />
-                  Cancel
+                  <X className="w-4 h-4" /> Cancel
                 </>
               ) : (
                 <>
-                  <Edit2 className="w-4 h-4" />
-                  Edit Profile
+                  <Edit2 className="w-4 h-4" /> Edit Profile
                 </>
               )}
             </Button>
           </div>
 
           {/* Profile Completion */}
-          <div className="bg-card/50 border border-border/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium">Profile Completion</label>
-              <span className="text-sm font-semibold text-primary">{progressPercentage}%</span>
+          <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-xs sm:text-sm font-black text-muted-foreground uppercase tracking-widest">Profile Integrity</label>
+              <span className="text-sm font-black text-primary">{progressPercentage}%</span>
             </div>
-            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-300"
+                className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
@@ -260,77 +265,81 @@ export default function ProfilePage() {
         </div>
 
         {/* Sections */}
-        <div className="space-y-6">
+        <div className="space-y-6 sm:space-y-8">
           {sections.map((section, idx) => (
             <div
               key={idx}
-              className="bg-card/50 border border-border/50 rounded-xl p-6 hover:shadow-lg transition-shadow"
+              className="bg-card border border-border/50 rounded-[32px] p-6 sm:p-8 hover:shadow-xl transition-all duration-300 group"
             >
-              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                <span className="text-2xl">{section.icon}</span>
+              <h2 className="text-lg sm:text-xl font-black text-foreground mb-6 flex items-center gap-3">
+                <span className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl">
+                  {section.icon}
+                </span>
                 {section.title}
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 {section.fields.map((field: any) => (
                   <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key} className="text-sm font-medium">
+                    <Label htmlFor={field.key} className="text-xs font-black text-muted-foreground uppercase tracking-widest pl-1">
                       {field.label}
                     </Label>
                     {isEditing ? (
-                      field.type === 'select' ? (
-                        <select
-                          id={field.key}
-                          value={
-                            (field.key.includes('.')
-                              ? getNestedValue(editData, field.key)
-                              : editData[field.key]) ?? ''
-                          }
-                          onChange={(e) => {
-                            if (field.key.includes('.')) {
-                              setEditData((prev: any) => {
-                                const newData = JSON.parse(JSON.stringify(prev));
-                                return setNestedValue(newData, field.key, e.target.value);
-                              });
-                            } else {
-                              handleInputChange(e);
+                      <div className="relative group/field">
+                        {field.type === 'select' ? (
+                          <select
+                            id={field.key}
+                            value={
+                              (field.key.includes('.')
+                                ? getNestedValue(editData, field.key)
+                                : editData[field.key]) ?? ''
                             }
-                          }}
-                          disabled={field.disabled}
-                          className="w-full px-3 py-2 bg-card/50 border border-border rounded-lg text-foreground"
-                        >
-                          {field.options?.map((opt: any) => (
-                            <option key={opt} value={opt}>
-                              {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <Input
-                          id={field.key}
-                          type={field.type || 'text'}
-                          value={
-                            (field.key.includes('.')
-                              ? getNestedValue(editData, field.key)
-                              : editData[field.key]) ?? ''
-                          }
-                          onChange={(e) => {
-                            if (field.key.includes('.')) {
-                              setEditData((prev: any) => {
-                                const newData = JSON.parse(JSON.stringify(prev));
-                                return setNestedValue(newData, field.key, e.target.value);
-                              });
-                            } else {
-                              handleInputChange(e);
+                            onChange={(e) => {
+                              if (field.key.includes('.')) {
+                                setEditData((prev: any) => {
+                                  const newData = JSON.parse(JSON.stringify(prev));
+                                  return setNestedValue(newData, field.key, e.target.value);
+                                });
+                              } else {
+                                handleInputChange(e);
+                              }
+                            }}
+                            disabled={field.disabled}
+                            className="w-full px-4 h-12 bg-background border border-border/50 rounded-xl text-foreground font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer appearance-none"
+                          >
+                            {field.options?.map((opt: any) => (
+                              <option key={opt} value={opt}>
+                                {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <Input
+                            id={field.key}
+                            type={field.type || 'text'}
+                            value={
+                              (field.key.includes('.')
+                                ? getNestedValue(editData, field.key)
+                                : editData[field.key]) ?? ''
                             }
-                          }}
-                          disabled={field.disabled}
-                          placeholder={field.placeholder || ''}
-                          className="bg-card/50 border-border rounded-lg"
-                        />
-                      )
+                            onChange={(e) => {
+                              if (field.key.includes('.')) {
+                                setEditData((prev: any) => {
+                                  const newData = JSON.parse(JSON.stringify(prev));
+                                  return setNestedValue(newData, field.key, e.target.value);
+                                });
+                              } else {
+                                handleInputChange(e);
+                              }
+                            }}
+                            disabled={field.disabled}
+                            placeholder={field.placeholder || ''}
+                            className="h-12 bg-background border border-border/50 rounded-xl focus:ring-2 focus:ring-primary/20 transition-all font-bold"
+                          />
+                        )}
+                      </div>
                     ) : (
-                      <p className="text-foreground py-2">
+                      <p className="text-foreground font-black text-base pl-1 min-h-[1.5rem] break-words">
                         {field.key.includes('.')
                           ? getNestedValue(user, field.key) || '—'
                           : user[field.key as keyof typeof user] || '—'}
@@ -343,15 +352,15 @@ export default function ProfilePage() {
           ))}
 
           {/* Resume Section */}
-          <div className="bg-card/50 border border-border/50 rounded-xl p-6 hover:shadow-lg transition-shadow">
-            <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-              <span className="text-2xl">📄</span>
-              Resume & Documents
+          <div className="bg-card border border-border/50 rounded-[32px] p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+            <h2 className="text-lg sm:text-xl font-black text-foreground mb-6 flex items-center gap-3">
+              <span className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl">📄</span>
+              Application Assets
             </h2>
 
             {isEditing ? (
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors">
+                <div className="border-2 border-dashed border-border/50 rounded-2xl p-6 sm:p-10 text-center hover:border-primary transition-all group/upload bg-background/30">
                   <input
                     type="file"
                     accept="application/pdf"
@@ -360,36 +369,44 @@ export default function ProfilePage() {
                     id="resume-upload"
                   />
                   <label htmlFor="resume-upload" className="cursor-pointer block">
-                    <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm font-medium">Upload Resume (PDF)</p>
-                    <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
+                    <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3 group-hover/upload:text-primary transition-colors" />
+                    <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Swap Resume PDF</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">Tap or drag to upload new version</p>
                   </label>
                 </div>
                 {resumeFile && (
-                  <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center justify-between">
-                    <span className="text-sm font-medium">{resumeFile.name}</span>
-                    <button
-                      onClick={() => setResumeFile(null)}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                  <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl animate-in slide-in-from-bottom-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Save className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-bold text-primary truncate max-w-[200px]">{resumeFile.name}</span>
+                      </div>
+                      <button
+                        onClick={() => setResumeFile(null)}
+                        className="p-1 hover:bg-primary/20 rounded-md transition-colors"
+                      >
+                        <X className="w-4 h-4 text-primary" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             ) : user.resume ? (
-              <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{user.resume.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(user.resume.size / 1024).toFixed(2)} KB • Uploaded{' '}
-                    {new Date(user.resume.uploadedAt).toLocaleDateString()}
-                  </p>
+              <div className="p-5 bg-primary/5 border border-primary/20 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
+                    <Download className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-black text-foreground truncate">{user.resume.name}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-widest">
+                      {(user.resume.size / 1024).toFixed(1)} KB • {new Date(user.resume.uploadedAt).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="gap-2"
+                  className="w-full sm:w-auto h-10 bg-primary/20 text-primary hover:bg-primary hover:text-foreground font-black rounded-xl gap-2 transition-all"
                   onClick={() => {
                     if (user.resume?.base64) {
                       const link = document.createElement('a');
@@ -400,24 +417,26 @@ export default function ProfilePage() {
                   }}
                 >
                   <Download className="w-4 h-4" />
-                  Download
+                  Access PDF
                 </Button>
               </div>
             ) : (
-              <p className="text-muted-foreground">No resume uploaded yet</p>
+              <div className="p-10 border border-dashed border-border/50 rounded-2xl text-center">
+                <p className="text-muted-foreground font-medium italic">No resume assets attached to profile</p>
+              </div>
             )}
           </div>
         </div>
 
         {/* Save Button */}
         {isEditing && (
-          <div className="flex gap-3 mt-8 sticky bottom-8">
+          <div className="fixed sm:sticky bottom-6 left-4 right-4 sm:left-0 sm:right-0 sm:bottom-8 z-50">
             <Button
               onClick={handleSave}
-              className="flex-1 bg-primary hover:bg-primary/90 gap-2 h-12"
+              className="w-full h-14 bg-primary hover:bg-primary/90 text-foreground text-lg font-black rounded-2xl shadow-2xl shadow-primary/30 active:scale-[0.98] transition-all gap-2 border-2 border-background"
             >
-              <Save className="w-5 h-5" />
-              Save Changes
+              <Save className="w-6 h-6" />
+              Preserve Modifications
             </Button>
           </div>
         )}

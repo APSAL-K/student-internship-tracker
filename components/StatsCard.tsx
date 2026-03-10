@@ -19,10 +19,10 @@ export function StatsCard({ title, value, icon: Icon, trend, color = 'primary' }
   };
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition">
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-foreground/70 text-sm font-medium">{title}</h3>
-        <div className={`${colorClasses[color]} p-3 rounded-lg`}>
+    <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 hover:border-primary/50 transition shadow-sm">
+      <div className="flex justify-between items-start mb-2 sm:mb-4">
+        <h3 className="text-foreground/70 text-xs sm:text-sm font-medium">{title}</h3>
+        <div className={`${colorClasses[color]} p-2 sm:p-3 rounded-lg`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>

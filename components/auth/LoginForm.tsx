@@ -22,8 +22,7 @@ export function LoginForm() {
 
   const demoAccounts = [
     { email: 'student@test.com', label: 'Student', description: 'Browse & apply to internships' },
-    { email: 'coordinator@test.com', label: 'Coordinator', description: 'Review applications' },
-    { email: 'admin@test.com', label: 'Admin', description: 'Full system access' },
+    { email: 'admin@test.com', label: 'Admin', description: 'Review applications' },
   ];
 
   // Handle redirect after successful login

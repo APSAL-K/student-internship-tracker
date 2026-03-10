@@ -15,7 +15,7 @@
 - **Profile completion alert**: Shows warning banner with profile completion percentage
 - **Proper error handling**: All Redux selectors check for data existence before rendering
 - **Empty state handling**: Shows appropriate messages when no data is available
-- **Role-based access**: Admin/coordinator users see different dashboard with proper stats
+- **Role-based access**: Admin users see different dashboard with proper stats
 
 ## 3. Sign-In Validation Improvements
 - Email uniqueness is checked in authSlice.ts
@@ -66,9 +66,8 @@ All errors now follow this pattern:
 
 ## Demo Credentials (with full profile data)
 ```
+admin@test.com / demo123          - 100% profile complete
 student@test.com / demo123       - 100% profile complete
-coordinator@test.com / demo123    - 60% profile complete  
-admin@test.com / demo123          - 50% profile complete
 ```
 
 ## Testing Checklist

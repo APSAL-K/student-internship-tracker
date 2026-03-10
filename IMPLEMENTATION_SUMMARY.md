@@ -89,7 +89,7 @@ User {
   - Application status distribution pie chart
   - Recommended internships
 
-- **Coordinator/Admin Dashboard**
+- **Admin Dashboard**
   - Total internships counter
   - Active positions tracker
   - Pending application reviews
@@ -145,8 +145,8 @@ Student Account:
   Email: student@test.com
   Password: demo123
   
-Coordinator Account:
-  Email: coordinator@test.com
+Admin Account:
+  Email: admin@test.com
   Password: demo123
   
 Admin Account:

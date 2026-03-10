@@ -83,11 +83,11 @@ export function InternshipCard({ internship, onApply, showActions = true, isAppl
       </div>
 
       {showActions && (
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
           {isApplied ? (
             <Button
               disabled
-              className="flex-1 bg-green-500/10 text-green-500 font-bold rounded-lg border border-green-500/20 cursor-not-allowed flex items-center gap-2"
+              className="flex-1 h-11 bg-green-500/10 text-green-500 font-bold rounded-xl border border-green-500/20 cursor-not-allowed flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" /> Applied
             </Button>
@@ -95,14 +95,14 @@ export function InternshipCard({ internship, onApply, showActions = true, isAppl
             onApply && (
               <Button
                 onClick={() => onApply(internship.id)}
-                className="flex-1 bg-gradient-to-r from-primary to-accent text-foreground font-semibold rounded-lg hover:shadow-lg transition-all"
+                className="flex-1 h-11 bg-gradient-to-r from-primary to-accent text-foreground font-bold rounded-xl hover:shadow-lg transition-all"
               >
                 Apply Now
               </Button>
             )
           )}
           <Link href={`/internships/${internship.id}`} className="flex-1">
-            <Button variant="outline" className="w-full border-border rounded-lg group-hover:border-primary/30">
+            <Button variant="outline" className="w-full h-11 border-border rounded-xl font-bold group-hover:border-primary/30">
               Details <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </Link>
