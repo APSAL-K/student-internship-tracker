@@ -75,7 +75,7 @@ export default function DashboardPage() {
     activeInternships: internships.filter((i) => i.status === 'active').length,
   };
 
-  const coordinatorStats = {
+  const adminStats = {
     totalInternships: internships.length,
     activeInternships: internships.filter((i) => i.status === 'active').length,
     pendingApplications: applications.filter((a) => a.status === 'pending').length,
@@ -92,13 +92,13 @@ export default function DashboardPage() {
       <div className="w-full min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8 flex justify-between items-start gap-4">
+          <div className="mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Welcome back, {user.name.split(' ')[0]}!</h1>
-              <p className="text-muted-foreground">Here's your internship journey overview</p>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-1">Welcome back, {user.name.split(' ')[0]}!</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Here's your internship journey overview</p>
             </div>
-            <Link href="/profile">
-              <Button variant="outline" className="gap-2">
+            <Link href="/profile" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full gap-2 h-11">
                 <AlertCircle className="w-4 h-4" />
                 Profile
               </Button>
@@ -383,44 +383,53 @@ export default function DashboardPage() {
     );
   }
 
-  if (user?.role === 'coordinator' || user?.role === 'admin') {
+  if (user?.role === 'admin') {
     return (
       <div className="w-full min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Monitor internship program metrics and applications</p>
+          {/* Admin Header */}
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-1">Admin Command Center</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Manage internships, applications, and system overview</p>
+            </div>
+            <div className="flex items-center w-full sm:w-auto gap-3">
+              <Link href="/manage" className="w-full sm:w-auto">
+                <Button className="w-full h-11 bg-primary hover:bg-primary/90 font-bold gap-2 rounded-xl">
+                  <Briefcase className="w-4 h-4" /> Add Internship
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
               title="Total Internships"
-              value={coordinatorStats.totalInternships}
+              value={adminStats.totalInternships.toString()}
               icon={Briefcase}
+              trend="+12%"
               color="primary"
             />
             <StatsCard
-              title="Active Positions"
-              value={coordinatorStats.activeInternships}
-              icon={TrendingUp}
+              title="Active Postings"
+              value={adminStats.activeInternships.toString()}
+              icon={Activity}
               color="green"
             />
             <StatsCard
               title="Pending Reviews"
-              value={coordinatorStats.pendingApplications}
+              value={adminStats.pendingApplications.toString()}
               icon={Clock}
               color="orange"
             />
             <StatsCard
               title="Approval Rate"
-              value={`${coordinatorStats.approvalRate}%`}
-              icon={Award}
+              value={`${adminStats.approvalRate}%`}
+              icon={TrendingUp}
               color="blue"
             />
           </div>
-
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-2 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
@@ -497,19 +506,60 @@ export default function DashboardPage() {
             <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
               <h2 className="text-xl font-bold text-foreground mb-6">Quick Stats</h2>
               <div className="space-y-4">
-                <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-                  <p className="text-sm text-muted-foreground mb-1">Total Applications</p>
-                  <p className="text-3xl font-bold text-primary">{coordinatorStats.totalApplications}</p>
+                {/* Total Applications */}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-xs font-medium text-foreground">Total Applications</span>
+                    <span className="text-xs font-bold text-primary">{adminStats.totalApplications}</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-primary h-full rounded-full transition-all duration-500"
+                      style={{ width: `${(adminStats.totalApplications / adminStats.totalInternships) * 100}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-px bg-border/50" />
-                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                  <p className="text-sm text-muted-foreground mb-1">Active Internships</p>
-                  <p className="text-3xl font-bold text-green-500">{coordinatorStats.activeInternships}</p>
+
+                {/* Active Internships */}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-xs font-medium text-foreground">Active Internships</span>
+                    <span className="text-xs font-bold text-green-500">{adminStats.activeInternships}</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-primary h-full rounded-full transition-all duration-500"
+                      style={{ width: `${(adminStats.activeInternships / adminStats.totalInternships) * 100}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-px bg-border/50" />
-                <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                  <p className="text-sm text-muted-foreground mb-1">Pending Review</p>
-                  <p className="text-3xl font-bold text-orange-400">{coordinatorStats.pendingApplications}</p>
+
+                {/* Pending Reviews */}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-xs font-medium text-foreground">Pending Reviews</span>
+                    <span className="text-xs font-bold text-orange-400">{adminStats.pendingApplications}</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-orange-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${(adminStats.pendingApplications / adminStats.totalApplications) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Success Rate */}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-xs font-medium text-foreground">Success Rate</span>
+                    <span className="text-xs font-bold text-green-400">{adminStats.approvalRate}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-green-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${adminStats.approvalRate}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

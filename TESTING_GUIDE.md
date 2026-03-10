@@ -6,7 +6,7 @@
 - Go to `/login`
 - Use one of these demo accounts:
   - **Student**: `student@test.com` / `demo123`
-  - **Coordinator**: `coordinator@test.com` / `demo123`
+  - **Admin**: `admin@test.com` / `demo123`
   - **Admin**: `admin@test.com` / `demo123`
 - Or click demo account buttons on login page
 
@@ -45,9 +45,9 @@
 ### 6. Dashboard
 - View different dashboards based on role:
   - **Student**: Applications, pending count, approved count
-  - **Coordinator/Admin**: Internship metrics, approval rates
+  - **Admin**: Internship metrics, approval rates
 - Charts display sample data
-- Recent activity shown for coordinators
+- Recent activity shown for admins
 
 ### 7. Logout
 - Click profile menu in navbar

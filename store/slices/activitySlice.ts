@@ -17,7 +17,7 @@ const mockActivities: Activity[] = [
   },
   {
     id: 'act-2',
-    userId: 'coordinator-1',
+    userId: 'admin-1',
     action: 'reviewed',
     description: 'Reviewed 5 applications for internship positions',
     timestamp: '2024-05-02T14:15:00',

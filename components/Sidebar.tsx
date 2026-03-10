@@ -22,13 +22,6 @@ const navItems = {
     { href: '/applications', label: 'My Applications', icon: CheckCircle },
     { href: '/documents', label: 'My Documents', icon: FileText },
   ],
-  coordinator: [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/manage', label: 'Manage Internships', icon: Briefcase },
-    { href: '/applications', label: 'Review Applications', icon: CheckCircle },
-    { href: '/students', label: 'Students', icon: Users },
-    { href: '/documents', label: 'Documents', icon: FileText },
-  ],
   admin: [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/manage', label: 'Manage Internships', icon: Briefcase },
@@ -40,7 +33,7 @@ const navItems = {
   ],
 };
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   const { user } = useAppSelector((state) => state.auth);
   const pathname = usePathname();
 
@@ -49,7 +42,7 @@ export function Sidebar() {
   const items = navItems[user.role as keyof typeof navItems] || [];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-sidebar border-r border-sidebar-border h-screen overflow-y-auto sticky top-0">
+    <aside className={cn("flex flex-col w-64 bg-sidebar border-r border-sidebar-border h-screen overflow-y-auto sticky top-0", className)}>
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <img

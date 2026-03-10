@@ -61,26 +61,6 @@ const loadRegisteredUsers = () => {
         },
         password: 'demo123',
       },
-      'coordinator@test.com': {
-        user: {
-          id: 'coordinator-1',
-          name: 'Dr. Sarah Smith',
-          email: 'coordinator@test.com',
-          role: 'coordinator' as const,
-          profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-          joinDate: '2023-06-01',
-          personalDetails: {
-            phone: '+1-555-0102',
-            address: '456 Oak Ave',
-            city: 'New York',
-            country: 'USA',
-            dateOfBirth: '1985-03-20',
-            gender: 'female' as const,
-          },
-          profileCompletionPercentage: 60,
-        },
-        password: 'demo123',
-      },
       'admin@test.com': {
         user: {
           id: 'admin-1',

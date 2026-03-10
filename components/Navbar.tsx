@@ -5,7 +5,7 @@ import { logout } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut, Moon, Sun, Bell, User, X } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -21,6 +21,13 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
   const { theme, setTheme } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
 
+  // Handles logout and redirects to login page
+  const handleLogout = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(logout());
+    router.push('/login');
+  };
+
   if (!isLoggedIn || !user) {
     return null;
   }
@@ -30,13 +37,13 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-4">
           {/* Logo and Title */}
-          <Link href="/dashboard" className="flex items-center gap-3 flex-shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">IT</span>
+          <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-sm sm:text-lg">IT</span>
             </div>
-            <div className="hidden sm:block">
-              <h1 className="text-base font-bold text-sidebar-foreground">Internship Tracker</h1>
-              <p className="text-xs text-sidebar-foreground/60 capitalize">{user.role}</p>
+            <div className="flex flex-col">
+              <h1 className="text-sm sm:text-base font-bold text-sidebar-foreground line-clamp-1">Internship Tracker</h1>
+              <p className="text-[10px] sm:text-xs text-sidebar-foreground/60 capitalize leading-none">{user.role}</p>
             </div>
           </Link>
 
@@ -55,16 +62,14 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
                 </Link>
               </>
             )}
-            {(user.role === 'admin' || user.role === 'coordinator') && (
+            {user.role === 'admin' && (
               <>
                 <Link href="/manage" className="px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition">
                   Manage
                 </Link>
-                {user.role === 'admin' && (
-                  <Link href="/analytics" className="px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition">
-                    Analytics
-                  </Link>
-                )}
+                <Link href="/analytics" className="px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition">
+                  Analytics
+                </Link>
               </>
             )}
             <Link href="/documents" className="px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition">
@@ -113,11 +118,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
                     My Profile
                   </Link>
                   <button
-                    onClick={() => {
-                      dispatch(logout());
-                      setProfileOpen(false);
-                      router.push('/login');
-                    }}
+                    onClick={handleLogout}
                     className="w-full px-4 py-2 text-sm text-destructive hover:bg-red-500/10 flex items-center gap-2 transition text-left"
                   >
                     <LogOut className="w-4 h-4" />
@@ -132,14 +133,11 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
               variant="ghost"
               size="icon"
               className="text-destructive hover:bg-red-500/10 hover:text-red-600 rounded-lg sm:hidden"
-              onClick={() => {
-                dispatch(logout());
-                router.push('/login');
-              }}
+              onClick={handleLogout}
               title="Logout"
             >
-              <LogOut className="w-5 h-5" />
             </Button>
+
 
             {/* Mobile Menu Toggle */}
             <button
@@ -151,7 +149,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
           </div>
         </div>
       </div>
-    </nav>
+    </nav >
   );
 }
 

@@ -85,13 +85,13 @@ export default function ApplicationsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-background">
-      <div className="w-full max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h1 className="text-4xl font-black text-foreground mb-3 tracking-tight">
-            {user?.role === 'student' ? 'My Applications' : 'Review Applications'}
+    <div className="w-full min-h-screen bg-background pb-12">
+      <div className="w-full max-w-7xl mx-auto px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground mb-2 sm:mb-3 tracking-tight">
+            {user?.role === 'student' ? 'My Applications' : 'Admin: Review Applications'}
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">
             {user?.role === 'student'
               ? 'Track your journey and stay updated with your internship statuses.'
               : 'Review and manage incoming talent for your open positions.'}
@@ -112,7 +112,7 @@ export default function ApplicationsPage() {
                   Browse internships and submit your first application to start your tracking.
                 </p>
                 <Link href="/internships">
-                  <Button className="bg-primary text-foreground font-bold rounded-xl px-8">
+                  <Button className="bg-primary hover:bg-primary/90 font-bold rounded-xl px-8">
                     Browse Internships
                   </Button>
                 </Link>
@@ -132,38 +132,40 @@ export default function ApplicationsPage() {
                     }`}
                 >
                   <div className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20 shadow-inner">
-                          <Building2 className="w-8 h-8" />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                      <div className="flex items-center gap-4 sm:gap-5">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20 shadow-inner flex-shrink-0">
+                          <Building2 className="w-6 h-6 sm:w-8 sm:h-8" />
                         </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-foreground leading-tight">{internship?.title || 'Unknown Role'}</h3>
-                          <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
-                            <span className="font-semibold text-primary/80">{internship?.company || 'Unknown Company'}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {internship?.location}</span>
+                        <div className="min-w-0">
+                          <h3 className="text-lg sm:text-xl font-bold text-foreground leading-tight truncate">
+                            {internship?.title || 'Unknown Role'}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-xs sm:text-sm mt-1">
+                            <span className="font-semibold text-primary/80 truncate">
+                              {internship?.company || 'Unknown Company'}
+                            </span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" /> {internship?.location}
+                            </span>
                           </div>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-6 justify-between md:justify-end">
-                        <div className="text-right hidden sm:block">
-                          <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Applied On</p>
-                          <p className="text-sm font-bold text-foreground">{new Date(application.appliedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <Badge className={`${getStatusColor(application.status)} border px-3 py-1 font-black uppercase text-[10px] tracking-wider`}>
-                            {application.status}
-                          </Badge>
-                          <button
-                            onClick={() => setExpandedApp(isExpanded ? null : application.id)}
-                            className="text-primary text-xs font-bold flex items-center gap-1 hover:underline"
-                          >
-                            {isExpanded ? 'Hide' : 'View'} Details
-                            {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                          </button>
-                        </div>
+                      <div className="flex flex-row items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
+                        <Badge className={`${getStatusColor(application.status)} border px-3 py-1 text-xs font-bold whitespace-nowrap`}>
+                          {application.status.toUpperCase()}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setExpandedApp(isExpanded ? null : application.id)}
+                          className="text-primary hover:bg-primary/10 rounded-xl font-bold h-10 px-4 flex items-center gap-1"
+                        >
+                          <span className="hidden sm:inline">{isExpanded ? 'Collapse Details' : 'View Details'}</span>
+                          <span className="sm:hidden">{isExpanded ? 'Hide' : 'View'}</span>
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </Button>
                       </div>
                     </div>
 
@@ -172,30 +174,70 @@ export default function ApplicationsPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                           {/* Left: Timeline */}
                           <div className="lg:col-span-1 space-y-6">
-                            <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Application Progress</h4>
+                            <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest">
+                              Application Progress
+                            </h4>
                             <div className="relative space-y-8 pl-6">
                               <div className="absolute left-[7px] top-1 bottom-1 w-0.5 bg-border/50"></div>
 
                               {/* Steps */}
                               {[
-                                { status: 'applied', label: 'Application Submitted', desc: 'Your application has been received' },
-                                { status: 'pending', label: 'Under Review', desc: 'The hiring team is reviewing your profile' },
-                                { status: 'approved', label: 'Final Decision', desc: application.status === 'approved' ? 'Congratulations! You are selected.' : application.status === 'rejected' ? 'Application was not successful.' : 'Awaiting final coordinator evaluation' }
+                                {
+                                  status: 'applied',
+                                  label: 'Application Submitted',
+                                  desc: 'Your application has been received',
+                                },
+                                {
+                                  status: 'pending',
+                                  label: 'Under Review',
+                                  desc: 'The hiring team is reviewing your profile',
+                                },
+                                {
+                                  status: 'approved',
+                                  label: 'Final Decision',
+                                  desc:
+                                    application.status === 'approved'
+                                      ? 'Congratulations! You are selected.'
+                                      : application.status === 'rejected'
+                                        ? 'Application was not successful.'
+                                        : 'Awaiting final administrative evaluation',
+                                },
                               ].map((step, idx) => {
-                                const isComplete = idx === 0 || (application.status === 'approved' || application.status === 'rejected') && idx === 2 || (application.status !== 'pending' && idx === 1);
+                                const isComplete =
+                                  idx === 0 ||
+                                  ((application.status === 'approved' || application.status === 'rejected') &&
+                                    idx === 2) ||
+                                  (application.status !== 'pending' && idx === 1);
                                 const isActive = application.status === 'pending' && idx === 1;
 
                                 return (
                                   <div key={idx} className="relative">
-                                    <div className={`absolute -left-[23px] top-1 w-4 h-4 rounded-full border-2 bg-card z-10 transition-colors duration-500 ${isComplete ? 'border-primary bg-primary' : isActive ? 'border-primary animate-pulse' : 'border-border'
-                                      }`}>
-                                      {isComplete && <CheckCircle2 className="w-3 h-3 text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                                    <div
+                                      className={`absolute -left-[23px] top-1 w-4 h-4 rounded-full border-2 bg-card z-10 transition-colors duration-500 ${isComplete ? 'border-primary bg-primary' : isActive ? 'border-primary animate-pulse' : 'border-border'
+                                        }`}
+                                    >
+                                      {isComplete && (
+                                        <CheckCircle2 className="w-3 h-3 text-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                                      )}
                                     </div>
                                     <div>
-                                      <p className={`text-sm font-bold ${isComplete || isActive ? 'text-foreground' : 'text-muted-foreground'}`}>{step.label}</p>
+                                      <p
+                                        className={`text-sm font-bold ${isComplete || isActive ? 'text-foreground' : 'text-muted-foreground'
+                                          }`}
+                                      >
+                                        {step.label}
+                                      </p>
                                       <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
-                                      {idx === 0 && <p className="text-[10px] text-primary/60 mt-1 font-bold">{application.appliedAt}</p>}
-                                      {idx === 2 && application.reviewedAt && <p className="text-[10px] text-primary/60 mt-1 font-bold">{application.reviewedAt}</p>}
+                                      {idx === 0 && (
+                                        <p className="text-[10px] text-primary/60 mt-1 font-bold">
+                                          {application.appliedAt}
+                                        </p>
+                                      )}
+                                      {idx === 2 && application.reviewedAt && (
+                                        <p className="text-[10px] text-primary/60 mt-1 font-bold">
+                                          {application.reviewedAt}
+                                        </p>
+                                      )}
                                     </div>
                                   </div>
                                 );
@@ -205,38 +247,54 @@ export default function ApplicationsPage() {
 
                           {/* Center: Details Snapshot */}
                           <div className="lg:col-span-1 space-y-6">
-                            <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Opportunity Snapshot</h4>
+                            <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest">
+                              Opportunity Snapshot
+                            </h4>
                             <div className="space-y-4">
                               <div className="flex items-center gap-3 p-3 bg-muted/20 border border-border/50 rounded-2xl">
                                 <DollarSign className="w-5 h-5 text-primary" />
                                 <div>
-                                  <p className="text-[10px] text-muted-foreground uppercase font-black">Monthly Stipend</p>
-                                  <p className="text-sm font-bold">₹{internship?.stipend.toLocaleString() || '0'}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase font-black">
+                                    Monthly Stipend
+                                  </p>
+                                  <p className="text-sm font-bold">
+                                    ₹{internship?.stipend.toLocaleString() || '0'}
+                                  </p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 p-3 bg-muted/20 border border-border/50 rounded-2xl">
                                 <Clock className="w-5 h-5 text-primary" />
                                 <div>
-                                  <p className="text-[10px] text-muted-foreground uppercase font-black">Duration</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase font-black">
+                                    Duration
+                                  </p>
                                   <p className="text-sm font-bold">{internship?.duration || 'TBD'}</p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 p-3 bg-muted/20 border border-border/50 rounded-2xl">
                                 <Calendar className="w-5 h-5 text-primary" />
                                 <div>
-                                  <p className="text-[10px] text-muted-foreground uppercase font-black">Joining Date</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase font-black">
+                                    Joining Date
+                                  </p>
                                   <p className="text-sm font-bold">{internship?.startDate || 'TBD'}</p>
                                 </div>
                               </div>
-                              <Link href={`/internships/${internship?.id}`} className="group flex items-center justify-center gap-2 w-full py-4 border border-primary/20 rounded-2xl text-primary font-black text-sm hover:bg-primary/5 transition-all">
-                                Go to Full Internship Page <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                              <Link
+                                href={`/internships/${internship?.id}`}
+                                className="group flex items-center justify-center gap-2 w-full py-4 border border-primary/20 rounded-2xl text-primary font-black text-sm hover:bg-primary/5 transition-all"
+                              >
+                                Go to Full Internship Page{' '}
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                               </Link>
                             </div>
                           </div>
 
                           {/* Right: Submission Info */}
                           <div className="lg:col-span-1 space-y-6">
-                            <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Submission Assets</h4>
+                            <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest">
+                              Submission Assets
+                            </h4>
                             <div className="space-y-4">
                               <div className="p-4 rounded-2xl bg-card border border-border/50 space-y-3">
                                 <div className="flex items-center justify-between">
@@ -244,7 +302,11 @@ export default function ApplicationsPage() {
                                     <FileText className="w-4 h-4 text-primary" />
                                     <span className="text-xs font-bold">Resume Profile</span>
                                   </div>
-                                  <Button variant="ghost" size="sm" className="h-7 text-[10px] gap-1 text-primary hover:text-primary hover:bg-primary/10">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 text-[10px] gap-1 text-primary hover:text-primary hover:bg-primary/10"
+                                  >
                                     Preview <ExternalLink className="w-3 h-3" />
                                   </Button>
                                 </div>
@@ -274,16 +336,21 @@ export default function ApplicationsPage() {
                           </div>
                         </div>
 
-                        {/* Coordinator Actions (if applicable) */}
-                        {(user?.role === 'coordinator' || user?.role === 'admin') &&
-                          application.status === 'pending' && (
-                            <div className="mt-10 p-6 bg-muted/30 border border-border/50 rounded-3xl space-y-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-1.5 h-4 bg-primary rounded-full"></div>
-                                <h4 className="text-sm font-bold">Coordinator Review Action</h4>
-                              </div>
+                        {/* Admin Action Section */}
+                        {user?.role === 'admin' && application.status === 'pending' && (
+                          <div className="mt-10 p-6 bg-muted/30 border border-border/50 rounded-3xl space-y-6">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-1.5 h-4 bg-primary rounded-full"></div>
+                              <h4 className="text-sm font-bold">Admin Review Action</h4>
+                            </div>
+
+                            <div className="space-y-3">
+                              <label className="text-xs font-black text-muted-foreground uppercase flex items-center gap-2">
+                                <FileText className="w-3 h-3" /> Official Review Comments
+                              </label>
                               <textarea
-                                placeholder="Add review feedback for the student..."
+                                className="w-full bg-background/50 border border-border/50 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-primary/20 outline-none min-h-[100px] transition-all"
+                                placeholder="Provide feedback on this application..."
                                 value={reviewComments[application.id] || ''}
                                 onChange={(e) =>
                                   setReviewComments({
@@ -291,25 +358,26 @@ export default function ApplicationsPage() {
                                     [application.id]: e.target.value,
                                   })
                                 }
-                                className="w-full bg-background border border-border/50 rounded-2xl p-4 text-sm text-foreground focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                                rows={3}
                               />
-                              <div className="flex flex-col sm:flex-row gap-4">
-                                <Button
-                                  onClick={() => handleApprove(application.id)}
-                                  className="flex-1 h-12 bg-green-500 hover:bg-green-600 text-foreground font-black rounded-2xl shadow-lg shadow-green-500/20"
-                                >
-                                  <CheckCircle2 className="w-5 h-5 mr-2" /> Approve Talent
-                                </Button>
-                                <Button
-                                  onClick={() => handleReject(application.id)}
-                                  className="flex-1 h-12 bg-red-500 hover:bg-red-600 text-foreground font-black rounded-2xl shadow-lg shadow-red-500/20"
-                                >
-                                  <XCircle className="w-5 h-5 mr-2" /> Reject Application
-                                </Button>
-                              </div>
                             </div>
-                          )}
+
+                            <div className="flex flex-col sm:flex-row gap-4">
+                              <Button
+                                onClick={() => handleApprove(application.id)}
+                                className="flex-1 h-12 bg-green-500 hover:bg-green-600 text-white font-black rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-all"
+                              >
+                                Approve Application
+                              </Button>
+                              <Button
+                                onClick={() => handleReject(application.id)}
+                                variant="outline"
+                                className="flex-1 h-12 border-red-500/50 text-red-500 hover:bg-red-500/5 hover:border-red-500 font-black rounded-xl active:scale-95 transition-all"
+                              >
+                                Reject
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

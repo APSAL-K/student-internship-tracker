@@ -1,5 +1,5 @@
 // User and Authentication Types
-export type UserRole = 'student' | 'coordinator' | 'admin';
+export type UserRole = 'student' | 'admin';
 
 export interface PersonalDetails {
   phone: string;
